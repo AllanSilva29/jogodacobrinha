@@ -1,0 +1,142 @@
+<html>
+  <head>
+    <title>Jogo da cobrinha</title>
+  </head>
+  <body>
+    <script>
+        // Cria o canvas
+        var canvas = document.createElement("canvas");
+        var ctx = canvas.getContext("2d");
+        canvas.width = 500;
+        canvas.height = 500;
+        document.body.appendChild(canvas);
+        // Variáveis do jogo
+        var snake = [
+            {x: 150,y: 150},
+            {x: 140,y: 150},
+            {x: 130,y: 150},
+            {x: 120,y: 150},
+            {x: 110,y: 150}
+        ]; // Posições iniciais da cobrinha
+        var dx = 10; // Incremento no eixo x
+        var dy = 0; // Incremento no eixo y
+        var foodX = 10; // Posição x da comida
+        var foodY = 10; // Posição y da comida
+        // Desenha a cobrinha
+        function drawSnake()
+        {
+            snake.forEach(function(snakePart)
+            {
+                ctx.fillStyle = "green";
+                ctx.strokeStyle = "darkgreen";
+                ctx.fillRect(snakePart.x, snakePart.y, 10, 10);
+                ctx.strokeRect(snakePart.x, snakePart.y, 10, 10);
+            });
+        }
+        // Desenha a comida
+        function drawFood()
+        {
+            ctx.fillStyle = "red";
+            ctx.strokeStyle = "darkred";
+            ctx.fillRect(foodX, foodY, 10, 10);
+            ctx.strokeRect(foodX, foodY, 10, 10);
+        }
+        // Gera uma comida em um lugar aleatório do canvas
+        function generateFood()
+        {
+            foodX = Math.floor(Math.random() * canvas.width / 10) * 10;
+            foodY = Math.floor(Math.random() * canvas.height / 10) * 10;
+        }
+        // Mover a cobrinha
+        function moveSnake()
+        {
+            // Adiciona uma nova parte no início da cobrinha
+            var newHead = {
+                x: snake[0].x + dx,
+                y: snake[0].y + dy
+            };
+            snake.unshift(newHead);
+            // Remove a última parte da cobrinha se ela não tiver comido
+            // E faz a cobrinha crescer se ela tiver comido
+            var didEatFood = snake[0].x == foodX && snake[0].y == foodY;
+            if (didEatFood)
+            {
+                generateFood();
+            }
+            else
+            {
+                snake.pop();
+            }
+        }
+
+        function didCollide()
+        {
+            var snakeHead = snake[0];
+            var didCollideWithWall = snakeHead.x < 0 || snakeHead.x >= canvas.width || snakeHead.y < 0 || snakeHead.y >= canvas.height;
+            return didCollideWithWall;
+        }
+        // Detecta teclas pressionadas
+        document.addEventListener("keydown", function(event)
+        {
+            // Verifica se a tecla pressionada é uma seta para cima, baixo, esquerda ou direita
+            if (event.key === "ArrowUp")
+            {
+                // Altera a direção da cobrinha para cima
+                dx = 0;
+                dy = -10;
+            }
+            else if (event.key === "ArrowDown")
+            {
+                // Altera a direção da cobrinha para baixo
+                dx = 0;
+                dy = 10;
+            }
+            else if (event.key === "ArrowLeft")
+            {
+                // Altera a direção da cobrinha para esquerda
+                dx = -10;
+                dy = 0;
+            }
+            else if (event.key === "ArrowRight")
+            {
+                // Altera a direção da cobrinha para direita
+                dx = 10;
+                dy = 0;
+            }
+        });
+        (function main()
+        {
+            // Limpa o canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Define a cor de fundo do canvas como preto
+            ctx.fillStyle = "black";
+            // Preenche o canvas com a cor de fundo
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Detecta colisões com as paredes e com a comida
+            if (didCollide())
+            {
+                // Define a cor do texto como branco
+                ctx.fillStyle = "white";
+                // Define a cor da borda do texto como preta
+                ctx.strokeStyle = "blue";
+                // Define a fonte a ser usada
+                ctx.font = "36px sans-serif";
+                // Calcula a posição x e y do texto no centro do canvas
+                var x = (canvas.width - ctx.measureText("Game Over").width) / 2;
+                var y = canvas.height / 2;
+                // Escreve o texto no canvas
+                ctx.fillText("Game Over", x, y);
+                ctx.strokeText("Game Over", x, y);
+                return;
+            }
+            // Move a cobrinha
+            moveSnake();
+            // Desenha a cobrinha e a comida no canvas
+            drawSnake();
+            drawFood();
+            // Chama a função main novamente após um intervalo de tempo
+            setTimeout(main, 100);
+        })()
+    </script>
+  </body>
+</html>
